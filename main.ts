@@ -454,6 +454,9 @@ namespace mbit_Robot {
     let initialized = false
     let yahStrip: neopixel.Strip;
 
+    let m1_speed = 0
+    let m2_speed = 0
+
     export enum enColor {
 
         //% blockId="OFF" block="off"
@@ -619,6 +622,7 @@ namespace mbit_Robot {
 
         setPwm(10, 0, speed2);
         setPwm(15, 0, 0);
+
         //pins.digitalWritePin(DigitalPin.P16, 1);
        // pins.analogWritePin(AnalogPin.P1, 1023-speed); //速度控制
 
@@ -753,6 +757,52 @@ namespace mbit_Robot {
 
         //pins.digitalWritePin(DigitalPin.P16, 1);
         //pins.analogWritePin(AnalogPin.P1, 1023-speed);
+
+    }
+
+    function set_wheel_speed(speed1: number, speed2: number) {
+        // if (speed1 != 0 && Math.abs(speed1 - m1_speed) > 30 && speed2 != 0 && Math.abs(speed2 - m2_speed) > 30) {
+        //     if speed1 > 0:
+        //         self.ina1.duty(int(translate(30, 0, 100, 0, 1023)))
+        //         self.ina2.duty(0)
+        //     elif m1_speed < 0:
+        //         # Backward
+        //         self.ina1.duty(0)
+        //         self.ina2.duty(int(translate(30, 0, 100, 0, 1023)))
+
+        //     if m2_speed > 0:
+        //         # Forward
+        //         self.inb1.duty(int(translate(30, 0, 100, 0, 1023)))
+        //         self.inb2.duty(0)
+        //     elif m2_speed < 0:
+        //         # Backward
+        //         self.inb1.duty(0)
+        //         self.inb2.duty(int(translate(30, 0, 100, 0, 1023)))
+
+        //     time.sleep_ms(200)
+        // }
+            
+        if (speed1 > 0) {
+            pins.analogWritePin(AnalogPin.P12, speed1)
+            pins.analogWritePin(AnalogPin.P2, 0)
+        } else if (speed1 < 0) {
+            pins.analogWritePin(AnalogPin.P12, 0)
+            pins.analogWritePin(AnalogPin.P2, speed1)
+        } else {
+            pins.analogWritePin(AnalogPin.P12, 0)
+            pins.analogWritePin(AnalogPin.P2, 0)
+        }
+
+        if (speed2 > 0) {
+            pins.analogWritePin(AnalogPin.P10, speed2)
+            pins.analogWritePin(AnalogPin.P15, 0)
+        } else if (speed2 < 0) {
+            pins.analogWritePin(AnalogPin.P10, 0)
+            pins.analogWritePin(AnalogPin.P15, speed2)
+        } else {
+            pins.analogWritePin(AnalogPin.P10, 0)
+            pins.analogWritePin(AnalogPin.P15, 0)
+        }
 
     }
 
@@ -1021,47 +1071,47 @@ namespace mbit_Robot {
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=10
     export function CarCtrl(index: CarState): void {
         switch (index) {
-            case CarState.Car_Run: Car_run(255, 255); break;
-            case CarState.Car_Back: Car_back(255, 255); break;
-            case CarState.Car_Left: Car_left(0, 255); break;
-            case CarState.Car_Right: Car_right(255, 0); break;
-            case CarState.Car_Stop: Car_stop(); break;
-            case CarState.Car_SpinLeft: Car_spinleft(255, 255); break;
-            case CarState.Car_SpinRight: Car_spinright(255, 255); break;
+            case CarState.Car_Run: set_wheel_speed(255, 255); break;
+            case CarState.Car_Back: set_wheel_speed(-255, -255); break;
+            case CarState.Car_Left: set_wheel_speed(-255, 255); break;
+            case CarState.Car_Right: set_wheel_speed(255, -255); break;
+            case CarState.Car_Stop: set_wheel_speed(0, 0); break;
+            case CarState.Car_SpinLeft: set_wheel_speed(-255, 255); break;
+            case CarState.Car_SpinRight: set_wheel_speed(255, -255); break;
         }
     }
     //% blockId=mbit_CarCtrlSpeed block="CarCtrlSpeed|%index|speed %speed"
     //% weight=92
     //% blockGap=10
-    //% speed.min=0 speed.max=255
+    //% speed.min=0 speed.max=1023
     //% color="#006400"
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=10
     export function CarCtrlSpeed(index: CarState, speed: number): void {
         switch (index) {
-            case CarState.Car_Run: Car_run(speed, speed); break;
-            case CarState.Car_Back: Car_back(speed, speed); break;
-            case CarState.Car_Left: Car_left(0, speed); break;
-            case CarState.Car_Right: Car_right(speed, 0); break;
-            case CarState.Car_Stop: Car_stop(); break;
-            case CarState.Car_SpinLeft: Car_spinleft(speed, speed); break;
-            case CarState.Car_SpinRight: Car_spinright(speed, speed); break;
+            case CarState.Car_Run: set_wheel_speed(speed, speed); break;
+            case CarState.Car_Back: set_wheel_speed(-speed, -speed); break;
+            case CarState.Car_Left: set_wheel_speed(-speed, speed); break;
+            case CarState.Car_Right: set_wheel_speed(speed, -speed); break;
+            case CarState.Car_Stop: set_wheel_speed(0, 0); break;
+            case CarState.Car_SpinLeft: set_wheel_speed(-speed, speed); break;
+            case CarState.Car_SpinRight: set_wheel_speed(speed, -speed); break;
         }
     }
     //% blockId=mbit_CarCtrlSpeed2 block="CarCtrlSpeed2|%index|speed1 %speed1|speed2 %speed2"
     //% weight=91
     //% blockGap=10
-    //% speed1.min=0 speed1.max=255 speed2.min=0 speed2.max=255
+    //% speed1.min=0 speed1.max=1023 speed2.min=0 speed2.max=1023
     //% color="#006400"
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=10
     export function CarCtrlSpeed2(index: CarState, speed1: number, speed2: number): void {
         switch (index) {
-            case CarState.Car_Run: Car_run(speed1, speed2); break;
-            case CarState.Car_Back: Car_back(speed1, speed2); break;
-            case CarState.Car_Left: Car_left(0, speed2); break;
-            case CarState.Car_Right: Car_right(speed1, 0); break;
-            case CarState.Car_Stop: Car_stop(); break;
-            case CarState.Car_SpinLeft: Car_spinleft(speed1, speed2); break;
-            case CarState.Car_SpinRight: Car_spinright(speed1, speed2); break;
+            case CarState.Car_Run: set_wheel_speed(speed1, speed2); break;
+            case CarState.Car_Back: set_wheel_speed(-speed1, -speed2); break;
+            case CarState.Car_Left: set_wheel_speed(-speed1, speed2); break;
+            case CarState.Car_Right: set_wheel_speed(speed1, -speed2); break;
+            case CarState.Car_Stop: set_wheel_speed(0, 0); break;
+            case CarState.Car_SpinLeft: set_wheel_speed(-speed1, speed2); break;
+            case CarState.Car_SpinRight: set_wheel_speed(speed1, -speed2); break;
         }
     }
 }
